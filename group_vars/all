@@ -1,0 +1,33 @@
+---
+# Variables here are applicable to all host groups
+
+# Configure in a external vars file
+hipchat_enabled: false
+hipchat_api_token: UNDEFINED
+hipchat_room: UNDEFINED
+
+# Docker private registry 
+docker_registry_enabled: false
+docker_registry_url: UNDEFINED
+docker_registry_username: UNDEFINED
+docker_registry_password: UNDEFINED
+docker_registry_email: UNDEFINED
+# Docker package version 
+docker_pkg_version: 1.8.2
+# Docker storage options: when using vcloud storage device is /dev/sdb and when using openstack it will probably /dev/vdb
+docker_storage_option: false
+docker_storage_device: UNDEFINED
+
+# Consul 
+consul_ip: "{{ private_ip }}"
+consul_port: 8500
+consul_url: "http://{{ consul_ip }}:{{ consul_port }}"
+consul_domain: consul
+consul_datacenter: hashicorpdc1
+
+# Consul alerts
+consul_alerts_hipchat_enabled: false
+consul_alerts_hipchat_room: UNDEFINED
+consul_alerts_hipchat_token: UNDEFINED
+
+

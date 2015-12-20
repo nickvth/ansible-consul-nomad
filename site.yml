@@ -1,0 +1,75 @@
+---
+# This playbook deploys the infrastructure for running microservices
+
+# os up to date and enable selinux
+- hosts: all
+  sudo: true
+  tasks:
+  - name: Update OS before all roles are running
+    yum: 
+     name: "*" 
+     update_cache: yes
+     disablerepo: "*"
+     enablerepo: "base,updates,extras" 
+     state: latest
+
+  - name: libselinux-python present
+    yum: 
+     name: "libselinux-python" 
+     state: present
+
+  - name: set selinux on enforcing 
+    selinux: policy=targeted state=enforcing
+
+  - name: reboot host
+    shell: nohup bash -c "sleep 2s && reboot" &
+
+  - name: Wait for server to come back   
+    local_action: wait_for port="{{ ansible_ssh_port }}" host="{{ ansible_ssh_host }}" delay=10 state=started
+    sudo: false 
+
+  - name: Pause booting is complete
+    pause: 
+     seconds: 90
+     prompt: "Make sure all services are back up"
+
+  - name: Notify hipchat
+    hipchat: 
+     token: "{{ hipchat_api_token }}" 
+     room: "{{ hipchat_room }}" 
+     color: purple 
+     msg_format: text 
+     msg: "os is up to date on {{ ansible_fqdn }}"
+    when: hipchat_enabled 
+
+# update system and install needed package on all nodes + template logrotate config.
+- hosts: all
+  sudo: true
+  roles:
+   - { role: init, tags: init }
+
+# consul cluster must be running before installing nomad clients. serial 1 is needed for consul server setup.
+- hosts: control_nodes
+  sudo: true
+  serial: 1
+  roles:
+   - { role: consul, tags: consul }
+ #  - { role: nomad, tags: nomad }
+   - { role: consul-alerts, when: consul_alerts_hipchat_enabled, tags: consul-alerts }
+
+- hosts: resource_nodes
+  sudo: true
+  roles:
+   - { role: consul, tags: consul }
+ #  - { role: nomad, tags: nomad }
+
+# after consul is running the other roles can be provisioned.
+- hosts: all
+  sudo: true
+  roles:
+   - { role: dnsmasq, tags: dnsmasq }
+   - { role: docker, tags: docker }
+   - { role: ntp, tags: ntp }
+
+
+
