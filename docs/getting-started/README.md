@@ -15,6 +15,8 @@
 ***TODO***
 
 - Nomad not available yet
+- Documentation for production 
+- Architecture picture
 
 ***Instructions***
 
@@ -34,7 +36,7 @@ cp group_vars/all customizations
 vi customizations
 ```
 
-Run vm's with virtualbox provider
+Run vm's with virtualbox provider. After starting the vm's ansible will provision the nodes.
 
 ```
 vagrant up 
@@ -44,11 +46,11 @@ vagrant up
 
 Consul UI
 
-http://192.168.33.10:8500
+* http://192.168.33.10:8500
 
 Nomad API
 
-http://192.168.33.10:????/
+* http://192.168.33.10:4646/
 
 Docs
 * https://www.nomadproject.io/docs/http/index.html
