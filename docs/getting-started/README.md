@@ -14,7 +14,7 @@
 
 ***TODO***
 
-- Add ansible commands to Vagrantfile
+- Nomad not available yet
 
 ***Instructions***
 
@@ -38,12 +38,6 @@ Run vm's with virtualbox provider
 
 ```
 vagrant up 
-```
-
-Bring up separate
-
-```
-vagrant up [control1] or [resource1]
 ```
 
 ***Services***
