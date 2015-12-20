@@ -21,6 +21,7 @@ Microservices running in this platform should follow the [twelve-factor-app](htt
 - Nomad setup
 - Documentation for production 
 - Architecture picture
+- Clusterhq for cluster docker volumes (postgres, elasticsearch etc..)
 
 # References
 
@@ -30,3 +31,4 @@ Microservices running in this platform should follow the [twelve-factor-app](htt
 * [Dnsmasq](http://www.thekelleys.org.uk/dnsmasq/doc.html)
 * [Ansible](http://www.ansible.com/)
 * [Vagrant](https://www.vagrantup.com/)
+* [ClusterHQ](https://clusterhq.com)
