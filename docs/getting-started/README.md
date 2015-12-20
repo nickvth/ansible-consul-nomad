@@ -9,14 +9,8 @@
 ***Versions***
 
 - Consul 0.6.0
-- Nomad 0.2.3
+- Nomad 0.2.3    Not available yet
 - Docker 1.8.2
-
-***TODO***
-
-- Nomad not available yet
-- Documentation for production 
-- Architecture picture
 
 ***Instructions***
 
