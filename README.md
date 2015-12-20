@@ -18,7 +18,7 @@ Microservices running in this platform should follow the [twelve-factor-app](htt
 
 # Roadmap
 
-- Todo
+- Nomad setup
 
 # References
 

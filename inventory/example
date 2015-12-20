@@ -1,0 +1,8 @@
+control1 ansible_ssh_host=x.x.x.x ansible_ssh_port=22
+resource1 ansible_ssh_host=x.x.x.x ansible_ssh_port=22
+
+[control_nodes]
+control1
+
+[resource_nodes]
+resource1
