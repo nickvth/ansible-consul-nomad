@@ -105,12 +105,3 @@
     port: 4646
     host: "{{ private_ip }}"
     delay: 15
-
-- name: Notify hipchat
-  hipchat: 
-   token: "{{ hipchat_api_token }}" 
-   room: "{{ hipchat_room }}"
-   color: purple 
-   msg_format: text 
-   msg: "nomad is running on {{ ansible_fqdn }}"
-  when: hipchat_enabled 
