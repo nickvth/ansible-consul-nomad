@@ -30,7 +30,7 @@ cp group_vars/all customizations
 vi customizations
 ```
 
-Run vm's with virtualbox provider. After starting the vm's ansible will provision the nodes.
+Run vm's with virtualbox provider. After starting the vm's, ansible will provision the nodes.
 
 ```
 vagrant up 
