@@ -14,7 +14,7 @@
   "start_join": [ "{{ consul_master_ip }}" ],
 {% endif %}
   "data_dir": "/data/consul/",
-  "ui_dir": "/data/consul/dist",
+  "ui_dir": "/data/consul/",
   "recursors": [ "{{ consul_ip }}" ],
 {% if consul_server == "yes" %}
   "server": true
