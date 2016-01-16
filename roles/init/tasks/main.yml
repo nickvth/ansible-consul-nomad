@@ -1,0 +1,34 @@
+---
+# This role will install / configure packages and pre config 
+
+- name: Install Packages rsyslog and logrotate
+  yum: 
+   name: "{{ item }}" 
+   update_cache: yes 
+   state: latest
+  with_items:
+   - rsyslog
+   - logrotate
+
+- name: Configure logrotate template for logging 
+  copy: 
+   src: "logging-rotate" 
+   dest: "/etc/logrotate.d/logging-rotate" 
+   mode: 0644
+
+- name: Configure default rsyslog template 
+  copy: 
+   src: "system.conf" 
+   dest: "/etc/rsyslog.d/system.conf" 
+   mode: 0644
+
+- name: Stop rsyslog when running
+  service: 
+   name: rsyslog
+   state: stopped
+
+- name: Start rsyslog and enabled on boot
+  service: 
+   name: rsyslog
+   state: started
+   enabled: true

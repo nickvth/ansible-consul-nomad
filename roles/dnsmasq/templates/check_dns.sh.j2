@@ -1,0 +1,1 @@
+/usr/lib64/nagios/plugins/check_dns -H {{ ansible_fqdn }}.node.{{ consul_datacenter }}.{{ consul_domain }} -a {{ private_ip }}

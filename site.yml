@@ -33,15 +33,6 @@
      seconds: 90
      prompt: "Make sure all services are back up"
 
-  - name: Notify hipchat
-    hipchat: 
-     token: "{{ hipchat_api_token }}" 
-     room: "{{ hipchat_room }}" 
-     color: purple 
-     msg_format: text 
-     msg: "os is up to date on {{ ansible_fqdn }}"
-    when: hipchat_enabled 
-
 # update system and install needed package on all nodes + template logrotate config.
 - hosts: all
   sudo: true
@@ -55,7 +46,6 @@
   roles:
    - { role: consul, tags: consul }
  #  - { role: nomad, tags: nomad }
-   - { role: consul-alerts, when: consul_alerts_hipchat_enabled, tags: consul-alerts }
 
 - hosts: resource_nodes
   sudo: true

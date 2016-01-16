@@ -1,0 +1,23 @@
+{
+  "datacenter": "{{ nomad_datacenter }}",
+  "enable_syslog": true,
+  "advertise_addr": "{{ nomad_ip }}",
+  "client_addr": "{{ nomad_ip }}",
+  "bind_addr": "{{ nomad_ip }}",
+  "node_name": "{{ ansible_fqdn }}",
+  "rejoin_after_leave": true,
+  "domain": "{{ nomad_domain }}", 
+{% if nomad_master == "yes" %}
+  "bootstrap_expect": {{ groups['control_nodes'] | length }},
+{% endif %}
+{% if nomad_join == "yes" %}
+  "start_join": [ "{{ nomad_master_ip }}" ],
+{% endif %}
+  "data_dir": "/data/nomad/",
+  "recursors": [ "{{ nomad_ip }}" ],
+{% if nomad_server == "yes" %}
+  "server": true
+{% else %}
+  "server": false
+{% endif %}    
+}

@@ -1,0 +1,17 @@
+[Unit]
+Description=Consul Agent
+
+[Service]
+User=consul
+Group=consul
+
+Restart=on-failure
+RestartSec=20
+TimeoutStartSec=0
+
+ExecStart=/usr/bin/consul agent -config-dir /etc/consul.d/
+ExecReload=/usr/bin/consul reload -rpc-addr={{ private_ip }}:8400
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

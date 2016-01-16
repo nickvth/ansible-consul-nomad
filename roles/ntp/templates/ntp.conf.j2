@@ -1,0 +1,8 @@
+restrict 127.0.0.1
+driftfile /var/lib/ntp/drift
+broadcastdelay 0.008
+
+server {{ ntpserv1 }}
+server {{ ntpserv2 }}
+server {{ ntpserv3 }}
+server {{ ntpserv4 }}

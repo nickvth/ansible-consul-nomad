@@ -1,0 +1,94 @@
+---
+
+- name: Install epel repository
+  yum: 
+   name: epel-release 
+   state: latest  
+
+- name: install packages
+  yum:
+   name: "{{ item }}"
+   state: latest
+  with_items:
+    - dnsmasq
+    - bind-utils
+    - NetworkManager
+    - nagios-plugins-dns
+
+- name: Stopped NetworkManager
+  service:
+   name: NetworkManager
+   state: stopped
+
+- name: Ensure dnsmasq.d directory exists
+  file: 
+   path: /etc/NetworkManager/dnsmasq.d
+   state: directory
+
+- name: Configure dnsmasq for consul 
+  template: 
+   src: 10-consul 
+   dest: /etc/NetworkManager/dnsmasq.d/10-consul
+   mode: 755
+
+- name: Configure networkmanager for dnsmasq
+  lineinfile:
+   dest: /etc/NetworkManager/NetworkManager.conf
+   line: "dns=dnsmasq"
+   insertbefore: "^plugins"
+
+- name: Create user consul
+  user: 
+   name: consul
+   comment: "consul-infrastructure" 
+   uid: 9998
+
+- name: Creates needed directories for ntp consul check
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   mode: 0750
+   owner: consul
+   group: consul
+  with_items:
+   - path: "/usr/scripts"
+
+- name: Disable dnsmasq
+  service:
+   name: dnsmasq
+   state: stopped
+   enabled: no
+
+- name: Script dns for consul health check
+  template: 
+   src: check_dns.sh.j2
+   dest: /usr/scripts/check_dns.sh
+   mode: 0755
+   owner: consul
+   group: consul
+
+- name: Started NetworkManager
+  service:
+   name: NetworkManager
+   state: started
+   enabled: yes
+
+- name: Copy resolv.conf 
+  template: 
+   src: resolv.conf.j2
+   dest: /etc/resolv.conf
+   mode: 0644
+
+- name: Copy Registering dns in consul
+  template: 
+   src: dns.json.j2
+   dest: /etc/consul.d/dns.json
+   mode: 0755
+   owner: consul
+   group: consul
+  register:
+    dns_consul_service
+
+- name: Reload consul
+  command: "systemctl reload consul"
+  when: dns_consul_service.changed

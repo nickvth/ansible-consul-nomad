@@ -1,0 +1,116 @@
+---
+# This role will install and run nomad
+
+- name: Check firewalld systemd file 
+  stat: 
+   path: /usr/lib/systemd/system/firewalld.service
+  register: check_file_result
+
+- name: Stop firewalld when exists
+  service: 
+   name: firewalld
+   state: stopped
+   enabled: no
+  when: check_file_result.stat.exists
+
+- name: Create user nomad
+  user: 
+   name: nomad
+   comment: "nomad-infrastructure" 
+   uid: 9997
+
+- name: Creates needed directories for nomad
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   owner: nomad
+   group: nomad
+   mode: 0750
+  with_items:
+   - path: "/data/nomad/"
+   - path: "/etc/nomad.d/"
+
+- name: Creates needed directory for check scripts
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   mode: 0755
+  with_items:
+   - path: "/usr/scripts"
+
+- name: Get nomad agent and ui
+  get_url: 
+   url: "{{ item.url }}"
+   dest: "{{ item.dest }}"
+   validate_certs: no
+  with_items: 
+   - url: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version }}_linux_amd64.zip"  
+     dest: /tmp/nomad.zip
+
+- name: Install package unzip
+  yum: 
+   name: unzip 
+   state: latest
+
+- name: Unzip nomad
+  command: unzip /tmp/nomad.zip -d /usr/bin/
+  args: 
+   creates: /usr/bin/nomad
+
+- name: Chown to nomad user
+  shell: chown -R nomad:nomad /data/nomad/
+
+- name: Make nomad app executable
+  file:
+   path: /usr/bin/nomad
+   mode: 0755
+   owner: nomad
+   group: nomad
+
+- name: Create nomad service config for master or join
+  template: 
+   src: nomad.json.j2
+   dest: /etc/nomad.d/nomad.json
+   owner: nomad
+   group: nomad
+   mode: 0640
+
+- name: Systemd file for nomad
+  template: 
+   src: nomad.service.j2
+   dest: /usr/lib/systemd/system/nomad.service
+   force: yes
+
+- name: Reload systemctl
+  command: /bin/systemctl daemon-reload
+
+- name: Install epel repository
+  yum: 
+   name: epel-release 
+   state: latest  
+
+- name: Stop nomad when running
+  service: 
+   name: nomad.service 
+   state: stopped
+
+- name: Start nomad and enabled on boot
+  service: 
+   name: nomad.service 
+   state: started
+   enabled: true
+
+- name: Wait for nomad http api running
+  wait_for:
+    port: 4646
+    host: "{{ private_ip }}"
+    delay: 15
+
+- name: Notify hipchat
+  hipchat: 
+   token: "{{ hipchat_api_token }}" 
+   room: "{{ hipchat_room }}"
+   color: purple 
+   msg_format: text 
+   msg: "nomad is running on {{ ansible_fqdn }}"
+  when: hipchat_enabled 

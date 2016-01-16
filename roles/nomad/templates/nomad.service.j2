@@ -1,0 +1,16 @@
+[Unit]
+Description=nomad Agent
+
+[Service]
+User=nomad
+Group=nomad
+
+Restart=on-failure
+RestartSec=20
+TimeoutStartSec=0
+
+ExecStart=/usr/bin/nomad agent /etc/nomad.d
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

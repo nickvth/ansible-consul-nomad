@@ -1,0 +1,3 @@
+nomad_version: 0.2.3
+nomad_web_version: 0.2.3
+nomad_master_ip: "{{ hostvars[groups['control_nodes'][0]]['private_ip'] }}"

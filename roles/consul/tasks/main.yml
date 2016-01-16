@@ -1,0 +1,148 @@
+---
+# This role will install and run consul
+
+#DON'T USE UPPERCASE VALUE FOR DATACENTER IN consul.json, DNS WILL NOT WORK.
+ 
+# Issue with quickly restarting a node using the same IP https://github.com/progrium/docker-consul
+- name: Clear arp table
+  shell: /sbin/ip -s -s neigh flush all
+
+- name: Check firewalld systemd file 
+  stat: 
+   path: /usr/lib/systemd/system/firewalld.service
+  register: check_file_result
+
+- name: Stop firewalld when exists
+  service: 
+   name: firewalld
+   state: stopped
+   enabled: no
+  when: check_file_result.stat.exists
+
+- name: Create user consul
+  user: 
+   name: consul
+   comment: "consul-infrastructure" 
+   uid: 9998
+
+- name: Creates needed directories for consul
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   owner: consul
+   group: consul
+   mode: 0750
+  with_items:
+   - path: "/data/consul/"
+   - path: "/etc/consul.d/"
+
+- name: Creates needed directory for check scripts
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   mode: 0755
+  with_items:
+   - path: "/usr/scripts"
+
+- name: Get consul agent and ui
+  get_url: 
+   url: "{{ item.url }}"
+   dest: "{{ item.dest }}"
+   validate_certs: no
+  with_items: 
+   - url: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip"  
+     dest: /tmp/consul.zip
+   - url: "https://releases.hashicorp.com/consul/{{ consul_web_version }}/consul_{{ consul_web_version }}_web_ui.zip"
+     dest: /tmp/consul-ui.zip
+
+- name: Install package unzip
+  yum: 
+   name: unzip 
+   state: latest
+
+- name: Unzip consul
+  command: unzip /tmp/consul.zip -d /usr/bin/
+  args: 
+   creates: /usr/bin/consul
+
+- name: Unzip consul ui
+  command: unzip /tmp/consul-ui.zip -d /data/consul/
+  args: 
+   creates: /data/consul/index.html
+
+- name: Chown to consul user
+  shell: chown -R consul:consul /data/consul/
+
+- name: Make consul app executable
+  file:
+   path: /usr/bin/consul
+   mode: 0755
+   owner: consul
+   group: consul
+
+- name: Create consul service config for master or join
+  template: 
+   src: consul.json.j2
+   dest: /etc/consul.d/consul.json
+   owner: consul
+   group: consul
+   mode: 0640
+
+- name: Systemd file for consul
+  template: 
+   src: consul.service.j2
+   dest: /usr/lib/systemd/system/consul.service
+   force: yes
+
+- name: Reload systemctl
+  command: /bin/systemctl daemon-reload
+
+- name: Install epel repository
+  yum: 
+   name: epel-release 
+   state: latest  
+
+- name: Install additional packages
+  yum:
+   name: "{{ item }}"
+   state: latest
+  with_items:
+   - nagios-plugins-disk
+
+- name: Creates needed directories for check scripts
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   mode: 0755
+  with_items:
+   - path: "/usr/scripts"
+
+- name: Script disk size check server
+  template: 
+   src: check_disk.sh.j2
+   dest: /usr/scripts/check_disk.sh
+   mode: 0755
+
+- name: Copy disk check in consul
+  template: 
+   src: disk.json.j2
+   dest: /etc/consul.d/disk.json
+   mode: 0755
+
+- name: Stop consul when running
+  service: 
+   name: consul.service 
+   state: stopped
+
+- name: Start consul and enabled on boot
+  service: 
+   name: consul.service 
+   state: started
+   enabled: true
+
+# Give consul time to elect a leader
+- name: Wait for leader
+  wait_for:
+    port: 8301
+    host: "{{ consul_ip }}"
+    delay: 15

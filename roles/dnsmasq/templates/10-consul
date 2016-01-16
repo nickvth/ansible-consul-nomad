@@ -1,0 +1,18 @@
+#Listen on all interfaces
+interface=*
+
+# Never forward addresses in the non-routed address spaces.
+bogus-priv
+
+server=8.8.8.8
+server=8.8.4.4
+
+#configure DNS resolution to consul servers
+{% for host in groups.control_nodes %}
+server=/{{ consul_domain }}/{{ hostvars[host]['private_ip'] }}#8600
+{% endfor %}
+
+
+
+
+

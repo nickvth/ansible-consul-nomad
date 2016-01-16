@@ -1,0 +1,24 @@
+{
+  "datacenter": "{{ consul_datacenter }}",
+  "enable_syslog": true,
+  "advertise_addr": "{{ consul_ip }}",
+  "client_addr": "{{ consul_ip }}",
+  "bind_addr": "{{ consul_ip }}",
+  "node_name": "{{ ansible_fqdn }}",
+  "rejoin_after_leave": true,
+  "domain": "{{ consul_domain }}", 
+{% if consul_master == "yes" %}
+  "bootstrap_expect": {{ groups['control_nodes'] | length }},
+{% endif %}
+{% if consul_join == "yes" %}
+  "start_join": [ "{{ consul_master_ip }}" ],
+{% endif %}
+  "data_dir": "/data/consul/",
+  "ui_dir": "/data/consul/dist",
+  "recursors": [ "{{ consul_ip }}" ],
+{% if consul_server == "yes" %}
+  "server": true
+{% else %}
+  "server": false
+{% endif %}    
+}

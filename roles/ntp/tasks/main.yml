@@ -1,0 +1,83 @@
+---
+
+- name: Install epel repository
+  yum: 
+   name: epel-release 
+   state: latest  
+
+- name: Install ntp packages
+  yum:
+   name: "{{ item }}"
+   state: latest
+  with_items:
+   - ntp
+   - ntpdate
+   - nagios-plugins-ntp
+
+- name: Create user consul
+  user: 
+   name: consul
+   comment: "consul-infrastructure" 
+   uid: 9998
+
+- name: Creates needed directories for ntp consul check
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   mode: 0750
+   owner: consul
+   group: consul
+  with_items:
+   - path: "/usr/scripts"
+
+- name: Stop ntp
+  service:
+   enabled: yes 
+   name: ntpd
+   state: stopped
+
+- name: Copy default ntp config
+  template:
+   src: ntp.conf.j2 
+   dest: /etc/ntp.conf
+   mode: 0644 
+
+- name: set timezone to netherlands
+  command: "timedatectl set-timezone {{ ntptimezone }}"  
+
+- name: sync ntp to 0.nl.pool.ntp.org
+  command: "/sbin/ntpdate {{ ntpserv1 }}"
+
+- name: Script ntp for consul health check
+  template: 
+   src: check_ntp.sh.j2
+   dest: /usr/scripts/check_ntp.sh
+   mode: 0755
+
+- name: Started ntp
+  service:
+   name: ntpd
+   state: started
+
+- name: Copy Registering ntp in consul
+  template: 
+   src: ntp.json.j2
+   dest: /etc/consul.d/ntp.json
+   mode: 0755
+   owner: consul
+   group: consul
+  register:
+    ntp_consul_service
+
+- name: Reload consul
+  command: "systemctl reload consul"
+  when: ntp_consul_service.changed
+
+- name: Notify hipchat
+  hipchat: 
+   token: "{{ hipchat_api_token }}" 
+   room: "{{ hipchat_room }}" 
+   color: purple 
+   msg_format: text 
+   msg: "ntp is running on {{ ansible_fqdn }}"
+  when: hipchat_enabled 

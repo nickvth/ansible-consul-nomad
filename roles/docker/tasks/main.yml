@@ -1,0 +1,99 @@
+---
+# This role will install Docker
+
+- name: Install epel repository
+  yum: 
+   name: epel-release 
+   state: latest  
+
+- name: Install docker packages
+  yum: 
+   name: "{{ item }}" 
+   update_cache: yes
+   state: present
+  with_items:
+   - "docker-{{ docker_pkg_version }}"
+   - "docker-selinux-{{ docker_pkg_version }}"
+   - policycoreutils-python
+   - cloud-utils-growpart
+
+- name: Check firewalld systemd file 
+  stat: 
+   path: /usr/lib/systemd/system/firewalld.service
+  register: check_file_result
+
+- name: Stop firewalld when exists
+  service: 
+   name: firewalld
+   state: stopped
+   enabled: no
+  when: check_file_result.stat.exists
+
+- name: Creates needed directory for scripts and docker-gc
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   mode: 0755
+  with_items:
+   - path: "/usr/scripts/"
+   - path: "/etc/docker-gc-exclude"
+  tags: docker-gc
+
+- name: Copy docker-gc-exclude file
+  copy: 
+   src: docker-gc-exclude
+   dest: /etc/docker-gc-exclude/docker-gc-exclude
+  tags: docker-gc
+
+- name: Create docker daemon config 
+  template: 
+   src: docker.j2
+   dest: /etc/sysconfig/docker
+
+- name: Stop Docker instance if running 
+  service: 
+   name: docker 
+   state: stopped
+
+- name: Check if docker storage already exists 
+  shell: /bin/find /dev/mapper/ -name 'docker--vg-docker--pool' | wc -l
+  register: docker_data
+
+- name: Copy script to create docker storage if not exists
+  template: 
+   src: docker-storage-setup.j2 
+   dest: /etc/sysconfig/docker-storage-setup
+  when: 'docker_storage_option and "0" in docker_data.stdout'
+
+- name: Execute docker storage setup command if storage not exists
+  command: /bin/docker-storage-setup
+  when: 'docker_storage_option and "0" in docker_data.stdout'
+
+- name: Remove all docker related data on loopback, when storage volume not exists
+  command: "rm -rf /var/lib/docker/*"
+  when: 'docker_storage_option and "0" in docker_data.stdout'
+
+- name: Addgroup docker to give user(s) privileges to run docker cli
+  group: 
+   name: docker 
+   state: present
+
+- name: Enable docker on boot
+  service: 
+   name: docker 
+   state: started 
+   enabled: true
+
+- name: Docker login on private registry as root
+  command: docker login -u {{ docker_registry_username }} -p {{ docker_registry_password }} -e {{ docker_registry_email }} {{ docker_registry_url }}
+  when: docker_registry_enabled
+
+- name: Garbage collector docker container and images
+  cron: 
+   name: "Garbage collector docker container and images"
+   hour: "4"  
+   minute: "0"
+   user: "root" 
+   job: /usr/bin/docker run --rm -e FORCE_IMAGE_REMOVAL=1 -v /var/run/docker.sock:/var/run/docker.sock -v /etc/docker-gc-exclude:/etc spotify/docker-gc > /dev/null 2>&1
+   state: present
+  tags: docker-gc
