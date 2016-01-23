@@ -13,9 +13,15 @@
    enabled: no
   when: check_file_result.stat.exists
 
+- name: Addgroup docker to give user(s) privileges to run docker cli
+  group: 
+   name: docker 
+   state: present
+
 - name: Create user nomad
   user: 
    name: nomad
+   groups: docker
    comment: "nomad-infrastructure" 
    uid: 9997
 
@@ -99,6 +105,11 @@
    name: nomad.service 
    state: started
    enabled: true
+
+- name: Docker login on private registry as root
+  command: docker login -u {{ docker_registry_username }} -p {{ docker_registry_password }} -e {{ docker_registry_email }} {{ docker_registry_url }}
+  when: docker_registry_enabled
+  sudo_user: nomad
 
 - name: Wait for nomad http api running
   wait_for:

@@ -72,12 +72,3 @@
 - name: Reload consul
   command: "systemctl reload consul"
   when: ntp_consul_service.changed
-
-- name: Notify hipchat
-  hipchat: 
-   token: "{{ hipchat_api_token }}" 
-   room: "{{ hipchat_room }}" 
-   color: purple 
-   msg_format: text 
-   msg: "ntp is running on {{ ansible_fqdn }}"
-  when: hipchat_enabled 
