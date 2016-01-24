@@ -22,7 +22,7 @@
     "client": {
         "enabled": true,
         "servers": [ "nomad-server.service.consul:4646" ],
-        "node_id": {{ ansible_fqdn }},
+        "node_id": "{{ ansible_fqdn }}",
         "options": {
               "consul.address": "consul.service.consul:8500"
           }
