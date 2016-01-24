@@ -18,9 +18,11 @@ Microservices running in this platform should follow the [twelve-factor-app](htt
 
 # Roadmap
 
+- Nomad Clustering setup
 - Documentation for production 
 - Architecture picture
 - Clusterhq for cluster docker volumes (postgres, elasticsearch etc..)
+- Terraform to deploy on cloud providers
 
 # References
 
