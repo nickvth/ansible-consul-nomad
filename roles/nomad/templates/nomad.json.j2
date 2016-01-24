@@ -2,13 +2,14 @@
 {
     "datacenter": "{{ nomad_datacenter }}",
     "data_dir": "/data/nomad",
+    "log_level": "DEBUG",
     "name": "{{ ansible_fqdn }}",
     "bind_addr": "{{ private_ip }}",
     "server": {
         "enabled": true,
 {% if nomad_master == "yes" %}
         "bootstrap_expect": {{ groups['control_nodes'] | length }},
-{% endif %} 
+{% endif %}
         "rejoin_after_leave": true
     }
 }
@@ -17,6 +18,7 @@
 {
     "datacenter": "{{ nomad_datacenter }}",
     "data_dir": "/data/nomad",
+    "log_level": "DEBUG",
     "name": "{{ ansible_fqdn }}",
     "bind_addr": "{{ private_ip }}",
     "client": {
