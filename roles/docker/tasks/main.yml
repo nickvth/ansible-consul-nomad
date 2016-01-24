@@ -84,6 +84,12 @@
    state: started 
    enabled: true
 
+- name: Wait for docker running
+  wait_for:
+    port: 2375
+    host: "{{ private_ip }}"
+    delay: 15
+
 - name: Docker login on private registry as root
   command: docker login -u {{ docker_registry_username }} -p {{ docker_registry_password }} -e {{ docker_registry_email }} {{ docker_registry_url }}
   when: docker_registry_enabled
@@ -97,3 +103,17 @@
    job: /usr/bin/docker run --rm -e FORCE_IMAGE_REMOVAL=1 -v /var/run/docker.sock:/var/run/docker.sock -v /etc/docker-gc-exclude:/etc spotify/docker-gc > /dev/null 2>&1
    state: present
   tags: docker-gc
+
+- name: Copy Registering docker in consul
+  template: 
+   src: docker.json.j2
+   dest: /etc/consul.d/docker.json
+   mode: 0755
+   owner: consul
+   group: consul
+  register:
+    docker_consul_service
+
+- name: Reload consul
+  command: "systemctl reload consul"
+  when: docker_consul_service.changed
