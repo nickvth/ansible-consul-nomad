@@ -1,23 +1,31 @@
-{
-  "datacenter": "{{ nomad_datacenter }}",
-  "enable_syslog": true,
-  "advertise_addr": "{{ nomad_ip }}",
-  "client_addr": "{{ nomad_ip }}",
-  "bind_addr": "{{ nomad_ip }}",
-  "node_name": "{{ ansible_fqdn }}",
-  "rejoin_after_leave": true,
-  "domain": "{{ nomad_domain }}", 
-{% if nomad_master == "yes" %}
-  "bootstrap_expect": {{ groups['control_nodes'] | length }},
-{% endif %}
-{% if nomad_join == "yes" %}
-  "start_join": [ "{{ nomad_master_ip }}" ],
-{% endif %}
-  "data_dir": "/data/nomad/",
-  "recursors": [ "{{ nomad_ip }}" ],
 {% if nomad_server == "yes" %}
-  "server": true
-{% else %}
-  "server": false
-{% endif %}    
+{
+    "datacenter": "{{ nomad_datacenter }}",
+    "data_dir": "/data/nomad",
+    "name": "{{ ansible_fqdn }}",
+    "bind_addr": "{{ private_ip }}",
+    "server": {
+        "enabled": true,
+{% if nomad_master == "yes" %}
+        "bootstrap_expect": {{ groups['control_nodes'] | length }},
+{% endif %} 
+        "rejoin_after_leave": true
+    }
 }
+{% endif %}
+{% if nomad_server == "no" %}
+{
+    "datacenter": "{{ nomad_datacenter }}",
+    "data_dir": "/data/nomad",
+    "name": "{{ ansible_fqdn }}",
+    "bind_addr": "{{ private_ip }}",
+    "client": {
+        "enabled": true,
+        "servers": [ "nomad-server.service.consul:4646" ],
+        "node_id": {{ ansible_fqdn }},
+        "options": {
+              "consul.address": "consul.service.consul:8500"
+          }
+    }
+}
+{% endif %}  

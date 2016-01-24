@@ -20,4 +20,9 @@ consul_url: "http://{{ consul_ip }}:{{ consul_port }}"
 consul_domain: consul
 consul_datacenter: hashicorpdc1
 
+# Nomad
+nomad_datacenter: hashicorpdc1
+
+
+
 

@@ -13,6 +13,15 @@
    enabled: no
   when: check_file_result.stat.exists
 
+- name: Creates needed directories
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   mode: 0755
+  with_items:
+   - path: "/data/
+   - path: "/usr/scripts"
+
 - name: Addgroup docker to give user(s) privileges to run docker cli
   group: 
    name: docker 
@@ -36,13 +45,10 @@
    - path: "/data/nomad/"
    - path: "/etc/nomad.d/"
 
-- name: Creates needed directory for check scripts
-  file: 
-   path: "{{ item.path }}" 
-   state: directory
-   mode: 0755
-  with_items:
-   - path: "/usr/scripts"
+- name: Install package wget
+  yum: 
+   name: wget
+   state: present
 
 - name: Get nomad agent and ui
   get_url: 
@@ -56,7 +62,7 @@
 - name: Install package unzip
   yum: 
    name: unzip 
-   state: latest
+   state: present
 
 - name: Unzip nomad
   command: unzip /tmp/nomad.zip -d /usr/bin/

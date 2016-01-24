@@ -19,6 +19,15 @@
    enabled: no
   when: check_file_result.stat.exists
 
+- name: Creates needed directories
+  file: 
+   path: "{{ item.path }}" 
+   state: directory
+   mode: 0755
+  with_items:
+   - path: "/data/
+   - path: "/usr/scripts"
+
 - name: Create user consul
   user: 
    name: consul
@@ -36,13 +45,10 @@
    - path: "/data/consul/"
    - path: "/etc/consul.d/"
 
-- name: Creates needed directory for check scripts
-  file: 
-   path: "{{ item.path }}" 
-   state: directory
-   mode: 0755
-  with_items:
-   - path: "/usr/scripts"
+- name: Install package wget
+  yum: 
+   name: wget
+   state: present
 
 - name: Get consul agent and ui
   get_url: 
@@ -58,7 +64,7 @@
 - name: Install package unzip
   yum: 
    name: unzip 
-   state: latest
+   state: present
 
 - name: Unzip consul
   command: unzip /tmp/consul.zip -d /usr/bin/

@@ -9,7 +9,7 @@ Restart=on-failure
 RestartSec=20
 TimeoutStartSec=0
 
-ExecStart=/usr/bin/nomad agent /etc/nomad.d
+ExecStart=/usr/bin/nomad agent -config /etc/nomad.d/nomad.json
 KillMode=process
 
 [Install]
