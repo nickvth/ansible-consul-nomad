@@ -1,4 +1,6 @@
-private_ip: "192.168.33.10" 
+private_ip: "192.168.33.10"
+ansible_host: "192.168.33.10"
+ansible_port: "22"
 consul_master: "yes" 
 consul_join: "no" 
 consul_server: "yes"
