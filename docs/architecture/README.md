@@ -15,6 +15,8 @@ Resource nodes launch containers with Nomad client.
 
 Below you can find a list of all services:
 
+<b>Consul and DnsMasq</b>
+
 | Node | Service | Port(s) |
 |------|---------|------|
 |control-node|consul-master|8500,8600 (DNS)|
@@ -22,3 +24,8 @@ Below you can find a list of all services:
 |resource-node|consul-agent|8500,8600 (DNS)|
 |resource-node|dnsmasq|53|
 
+<b>Nomad</b>
+
+- http: The port used to run the HTTP server. Applies to both client and server nodes. Defaults to 4646.
+- rpc: The port used for internal RPC communication between agents and servers, and for inter-server traffic for the consensus algorithm (raft). Defaults to 4647. Only used on server nodes.
+- serf: The port used for the gossip protocol for cluster membership. Both TCP and UDP should be routable between the server nodes on this port. Defaults to 4648. Only used on server nodes.
