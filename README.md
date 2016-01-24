@@ -33,3 +33,7 @@ Microservices running in this platform should follow the [twelve-factor-app](htt
 * [Ansible](http://www.ansible.com/)
 * [Vagrant](https://www.vagrantup.com/)
 * [ClusterHQ](https://clusterhq.com)
+
+# Issues
+
+Let me know if there are any issues with the deployment

@@ -2,14 +2,14 @@
 
 ***Requirements***
 
-- Ansible 1.9.2 >
+- Ansible 1.9.x
 - VirtualBox 4.3.30 >
 - Vagrant 1.7.4 >
 
 ***Versions***
 
 - Consul 0.6.0
-- Nomad 0.2.3    Not available yet
+- Nomad 0.2.3   
 - Docker 1.8.2
 
 ***Instructions***
