@@ -1,5 +1,5 @@
 {% if nomad_server == "yes" %}
-{"service": {"name": "nomad-server", "Address": "{{ private_ip }}", "Port": 4646, "checks": [{"tcp": "{{ private_ip }}:4646", "interval": "60s"}] }}
+{"service": {"name": "nomad-server", "Address": "{{ private_ip }}", "Port": 4646, "checks": [{"http": "http://{{ private_ip }}:4646/v1/status/leader", "interval": "60s"}] }}
 {% else %}
-{"service": {"name": "nomad-client", "Address": "{{ private_ip }}", "Port": 4646, "checks": [{"tcp": "{{ private_ip }}:4646", "interval": "60s"}] }}
+{"service": {"name": "nomad-client", "Address": "{{ private_ip }}", "Port": 4646, "checks": [{"http": "http://{{ private_ip }}:4646/v1/status/leader", "interval": "60s"}] }}
 {% endif %} 
