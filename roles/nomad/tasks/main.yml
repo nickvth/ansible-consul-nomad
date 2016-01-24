@@ -19,7 +19,7 @@
    state: directory
    mode: 0755
   with_items:
-   - path: "/data/
+   - path: "/data/"
    - path: "/usr/scripts"
 
 - name: Addgroup docker to give user(s) privileges to run docker cli
@@ -122,3 +122,17 @@
     port: 4646
     host: "{{ private_ip }}"
     delay: 15
+
+- name: Copy Registering nomad in consul
+  template: 
+   src: nomad_consul.j2
+   dest: /etc/consul.d/nomad.json
+   mode: 0755
+   owner: consul
+   group: consul
+  register:
+    nomad_consul_service
+
+- name: Reload consul
+  command: "systemctl reload consul"
+  when: nomad_consul_service.changed

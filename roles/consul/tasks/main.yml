@@ -25,7 +25,7 @@
    state: directory
    mode: 0755
   with_items:
-   - path: "/data/
+   - path: "/data/"
    - path: "/usr/scripts"
 
 - name: Create user consul
