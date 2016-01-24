@@ -40,7 +40,9 @@
   template:
    src: ntp.conf.j2 
    dest: /etc/ntp.conf
-   mode: 0644 
+   mode: 0644
+  register:
+    ntp_conf
 
 - name: set timezone to netherlands
   command: "timedatectl set-timezone {{ ntptimezone }}"  
@@ -69,6 +71,19 @@
   register:
     ntp_consul_service
 
-- name: Reload consul
-  command: "systemctl reload consul"
+- name: Restart consul
+  command: "systemctl restart consul"
   when: ntp_consul_service.changed
+
+- name: Stop rsyslog when running
+  service: 
+   name: rsyslog
+   state: stopped
+  when: ntp_conf.changed
+
+- name: Start rsyslog and enabled on boot
+  service: 
+   name: rsyslog
+   state: started
+   enabled: true
+  when: ntp_conf.changed
