@@ -45,13 +45,11 @@
   serial: 1
   roles:
    - { role: consul, tags: consul }
-   - { role: nomad, tags: nomad }
 
 - hosts: resource_nodes
   sudo: true
   roles:
    - { role: consul, tags: consul }
-   - { role: nomad, tags: nomad }
 
 # after consul is running the other roles can be provisioned.
 - hosts: all
@@ -61,5 +59,15 @@
    - { role: docker, tags: docker }
    - { role: ntp, tags: ntp }
 
+- hosts: control_nodes
+  sudo: true
+  serial: 1
+  roles:
+   - { role: nomad, tags: nomad }
+
+- hosts: resource_nodes
+  sudo: true
+  roles:
+   - { role: nomad, tags: nomad }
 
 
