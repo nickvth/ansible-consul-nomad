@@ -42,9 +42,9 @@ Consul UI
 
 * http://192.168.33.10:8500
 
-Nomad API "NOT WORKING YET"
+Nomad API 
 
-* http://192.168.33.10:4646/
+* http://192.168.33.10:4646
 
 Docs
 * https://www.nomadproject.io/docs/http/index.html
