@@ -21,11 +21,11 @@
     "bind_addr": "{{ private_ip }}",
     "client": {
         "enabled": true,
-        "servers": [ "nomad-server.service.consul:4646" ],
+        "servers": [ "nomad-server.service.consul:4647" ],
         "node_id": "{{ ansible_fqdn }}",
         "options": {
               "consul.address": "consul.service.consul:8500"
           }
     }
 }
-{% endif %}  
+{% endif %}
