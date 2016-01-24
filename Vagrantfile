@@ -44,7 +44,7 @@ Vagrant.configure(2) do |config|
       v.customize ["modifyvm", :id, "--memory", 1536]
       v.customize ["modifyvm", :id, "--cpus", 1]
       v.customize ["modifyvm", :id, "--ioapic", "on"]
-      v.customize ["modifyvm", :id, "--rtcuseutc", "off"]      
+      v.customize ["modifyvm", :id, "--rtcuseutc", "off"]
     end
 
     config.vm.provision "shell", inline:
