@@ -22,6 +22,7 @@ consul_datacenter: hashicorpdc1
 
 # Nomad
 nomad_datacenter: hashicorpdc1
+private_ip_interface: enp0s8
 
 
 

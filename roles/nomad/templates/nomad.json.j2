@@ -21,6 +21,7 @@
     "bind_addr": "{{ private_ip }}",
     "client": {
         "enabled": true,
+        "network_interface": "enp0s8",
         "servers": [ "nomad-server.service.consul:4647" ],
         "node_id": "{{ ansible_fqdn }}",
         "options": {
