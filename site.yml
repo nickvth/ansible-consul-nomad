@@ -55,9 +55,10 @@
 - hosts: all
   sudo: true
   roles:
+   - { role: ntp, tags: ntp }
    - { role: dnsmasq, tags: dnsmasq }
    - { role: docker, tags: docker }
-   - { role: ntp, tags: ntp }
+
 
 - hosts: control_nodes
   sudo: true
